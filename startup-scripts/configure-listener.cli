@@ -1,0 +1,7 @@
+embed-server --server-config=standalone-ha.xml --std-out=echo
+/subsystem=keycloak-server/spi=eventsListener/:add
+/subsystem=keycloak-server/spi=eventsListener/provider=http_webhook/:add(enabled=true)
+/subsystem=keycloak-server/spi=eventsListener/provider=http_webhook/:map-put(name=properties,key=serverUrl,value=https://www.volt.school/keycloak_callbacks)
+/subsystem=keycloak-server/spi=eventsListener/provider=http_webhook/:map-put(name=properties,key=username,value=keycloak)
+/subsystem=keycloak-server/spi=eventsListener/provider=http_webhook/:map-put(name=properties,key=password,value=6Ct8B7kK34fMfbTqTXswXyC4Zhn3sxp3)
+stop-embedded-server

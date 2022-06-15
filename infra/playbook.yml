@@ -1,0 +1,87 @@
+---
+- name: Setup
+  hosts: localhost
+  vars:
+    ansible_python_interpreter: "/usr/bin/python3"
+    deploy_image_file_local_keycloak: '{{lookup("env","HOME")}}/deploy_keycloak_{{lookup("env","SHA")}}.tar'
+    deploy_image_name_keycloak: 'volt/keycloak:{{lookup("env","SHA")}}'
+  tasks:
+    - pip:
+        name: docker
+
+    - name: Build keycloak deployment image
+      docker_image:
+        name: "{{deploy_image_name_keycloak}}"
+        build:
+          dockerfile: Dockerfile
+          path: ../keycloak
+          pull: no
+        source: build
+
+    - name: Save keycloak locally before copy
+      docker_image:
+        name: "{{deploy_image_name_keycloak}}"
+        archive_path: "{{deploy_image_file_local_keycloak}}"
+        source: local
+
+- name: Deploy
+  hosts: app
+  vars:
+    volt_home_directory: "/home/ubuntu/volt"
+    ansible_python_interpreter: "/usr/bin/python3"
+    deploy_image_file_local_keycloak: '{{lookup("env","HOME")}}/deploy_keycloak_{{lookup("env","SHA")}}.tar'
+    deploy_image_file_remote_keycloak: '/tmp/deploy_keycloak_{{lookup("env","SHA")}}.tar'
+    deploy_image_name_keycloak: 'volt/keycloak:{{lookup("env","SHA")}}'
+  tasks:
+    - pip:
+        name: docker
+
+    #
+    # Keycloak
+    #
+    - name: Copy keycloak image file to remote
+      copy:
+        src: "{{deploy_image_file_local_keycloak}}"
+        dest: "{{deploy_image_file_remote_keycloak}}"
+
+    - name: Load server image
+      docker_image:
+        name: "{{deploy_image_name_keycloak}}"
+        load_path: "{{deploy_image_file_remote_keycloak}}"
+        source: load
+
+    - name: Ensure keycloak server running
+      docker_container:
+        name: keycloak
+        image: "{{deploy_image_name_keycloak}}"
+        log_driver: json-file
+        restart_policy: unless-stopped
+        log_options:
+          "max-size": "5m"
+          "max-file": "3"
+        state: started
+        networks:
+          - name: websites
+        env:
+          DB_ADDR: "personal-do-user-170342-0.b.db.ondigitalocean.com"
+          DB_DATABASE: "keycloak"
+          DB_PASSWORD: "{{ keybase_database_password }}"
+          DB_PORT: "25060"
+          DB_USER: "keycloak"
+          DB_VENDOR: "postgres"
+          KEYCLOAK_FRONTEND_URL: "https://auth.vodon.gg/auth"
+          KEYCLOAK_PASSWORD: "{{ keybase_admin_password }}"
+          KEYCLOAK_USER: "admin"
+
+    - name: Remove uploaded keycloak image
+      file:
+        path: "{{deploy_image_file_remote_keycloak}}"
+        state: absent
+
+    - name: Cleanup
+      docker_prune:
+        containers: yes
+        images: yes
+        networks: yes
+        volumes: yes
+        builder_cache: yes
