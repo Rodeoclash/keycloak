@@ -65,12 +65,12 @@
         env:
           DB_ADDR: "personal-do-user-170342-0.b.db.ondigitalocean.com"
           DB_DATABASE: "keycloak"
-          DB_PASSWORD: "{{ keybase_database_password }}"
+          DB_PASSWORD: "{{ keycloak_database_password }}"
           DB_PORT: "25060"
           DB_USER: "keycloak"
           DB_VENDOR: "postgres"
           KEYCLOAK_FRONTEND_URL: "https://auth.vodon.gg/auth"
-          KEYCLOAK_PASSWORD: "{{ keybase_admin_password }}"
+          KEYCLOAK_PASSWORD: "{{ keycloak_admin_password }}"
           KEYCLOAK_USER: "admin"
 
     - name: Remove uploaded keycloak image
