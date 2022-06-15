@@ -14,7 +14,7 @@
         name: "{{deploy_image_name_keycloak}}"
         build:
           dockerfile: Dockerfile
-          path: ../keycloak
+          path: ../
           pull: no
         source: build
 
