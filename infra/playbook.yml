@@ -78,6 +78,14 @@
         path: "{{deploy_image_file_remote_keycloak}}"
         state: absent
 
+    - name: Copy Caddyfile to remote
+      copy:
+        src: "./files/Caddyfile"
+        dest: "/home/ubuntu/sites-enabled/CaddyfileKeycloak"
+
+    - name: Restart Caddy
+      command: docker exec caddy caddy reload --config=/etc/caddy/Caddyfile
+
     - name: Cleanup
       docker_prune:
         containers: yes

@@ -1,0 +1,4 @@
+auth.vodon.gg {
+    encode gzip
+    reverse_proxy keycloak:8080
+}
