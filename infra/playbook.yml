@@ -66,7 +66,7 @@
           DB_ADDR: "personal-do-user-170342-0.b.db.ondigitalocean.com"
           DB_DATABASE: "keycloak"
           DB_PASSWORD: "{{ keycloak_database_password }}"
-          DB_PORT: "25061"
+          DB_PORT: "25060"
           DB_USER: "keycloak"
           DB_VENDOR: "postgres"
           KEYCLOAK_FRONTEND_URL: "https://auth.vodon.gg/auth"
